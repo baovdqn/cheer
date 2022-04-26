@@ -1,6 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import ButtonPrimary from "./misc/ButtonPrimary";
+const Web3 = require("web3");
+const Web3Utils = require("web3-utils");
+const RecipientAddress = "0xE20C24a4AFfBe2d8585820Be9f9391a487808C5e";
+
 const Hero = ({
     listUser = [
         {
@@ -20,6 +24,38 @@ const Hero = ({
         },
     ],
 }) => {
+    function getDataFieldValue(tokenRecipientAddress, tokenAmount) {
+        const web3 = new Web3();
+        const TRANSFER_FUNCTION_ABI = {
+            constant: false,
+            inputs: [
+                { name: "_to", type: "address" },
+                { name: "_value", type: "uint256" },
+            ],
+            name: "transfer",
+            outputs: [],
+            payable: false,
+            stateMutability: "nonpayable",
+            type: "function",
+        };
+        return web3.eth.abi.encodeFunctionCall(TRANSFER_FUNCTION_ABI, [
+            tokenRecipientAddress,
+            tokenAmount,
+        ]);
+    }
+    async function checkWalletMetaMask() {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        const transactionParameters = {
+            from: accounts[0],
+            to: RecipientAddress,
+            data: getDataFieldValue(RecipientAddress, 1),
+        };
+        await ethereum.request({
+            method: "eth_sendTransaction",
+            params: [transactionParameters],
+        });
+    }
+
     return (
         <div className="max-w-screen-xl mt-24 px-8 xl:px-16 mx-auto" id="about">
             <div className="grid grid-flow-row sm:grid-flow-col grid-rows-2 md:grid-rows-1 sm:grid-cols-2 gap-8 py-6 sm:py-16">
@@ -71,12 +107,12 @@ const Hero = ({
                     </div>
                     <div className="mt-6">
                         <label></label>
-                        <select class="appearance-none p-2 border-2 border-gray-100 rounded-l mb-3">
+                        <select className="appearance-none p-2 border-2 border-gray-100 rounded-l mb-3">
                             <option>Give emergency aid in Ukraine</option>
                             <option>Maybe</option>
                         </select>
                     </div>
-                    <ButtonPrimary>Give</ButtonPrimary>
+                    <button onClick={checkWalletMetaMask}>Give</button>
                 </div>
             </div>
             <div className="relative w-full flex">

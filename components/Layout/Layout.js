@@ -11,6 +11,7 @@ const Layout = ({ children }) => {
             setScrollActive(window.scrollY > 0);
         });
     }, []);
+
     return (
         <>
             <Header />
