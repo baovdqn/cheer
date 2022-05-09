@@ -6,6 +6,8 @@ import ButtonOutline from "./misc/ButtonOutline.";
 import Maps from "../public/assets/HugeGlobal.svg";
 import { Link as LinkScroll } from "react-scroll";
 
+const bsc_network_id = 56;
+
 const Pricing = () => {
     const [activeLink, setActiveLink] = useState(null);
     const [scrollActive, setScrollActive] = useState(false);

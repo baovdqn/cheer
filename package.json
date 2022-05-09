@@ -9,6 +9,7 @@
     "export": "next build && next export"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^3.5.1",
     "@fullhuman/postcss-purgecss": "^3.0.0",
     "@metamask/detect-provider": "^1.2.0",
     "autoprefixer": "^10.0.4",
