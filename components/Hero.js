@@ -153,7 +153,14 @@ const Hero = ({
                             className="col-span-6 sm:col-span-6 lg:col-span-4 p-2 border-2 border-gray-100 rounded-l cursor-pointer"
                         />
                     </div>
-                    <button onClick={checkWalletMetaMask}>Give</button>
+                    <button
+                        className={
+                            "py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none mt-4"
+                        }
+                        onClick={checkWalletMetaMask}
+                    >
+                        Give 1000 CUT / 1 USDT
+                    </button>
                 </div>
             </div>
             <div className="relative w-full flex">
